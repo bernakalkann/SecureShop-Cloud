@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureShop — AWS E-Ticaret</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--card:#1a2235;--border:#1e2d45;
+  --accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;
+  --text:#f1f5f9;--muted:#94a3b8;--font:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh}
+/* NAV */
+nav{background:rgba(17,24,39,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100}
+.logo{font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:1rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+#authStatus{font-size:.85rem;color:var(--muted)}
+/* HERO */
+.hero{padding:5rem 2rem 3rem;text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,.15) 0%,transparent 70%)}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto 2rem;line-height:1.6}
+/* BADGES */
+.badges{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
+.badge{display:flex;align-items:center;gap:.4rem;background:var(--card);border:1px solid var(--border);padding:.35rem .75rem;border-radius:999px;font-size:.78rem;color:var(--muted)}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+/* MAIN LAYOUT */
+.container{max-width:1200px;margin:0 auto;padding:0 2rem 4rem}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:2rem;align-items:start}
+/* AUTH PANEL */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+.panel h2{font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--text)}
+.tabs{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.tab{flex:1;padding:.5rem;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.85rem;cursor:pointer;transition:all .2s}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.form-group{margin-bottom:.9rem}
+.form-group label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
+.form-group input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;color:var(--text);font-size:.9rem;font-family:var(--font);transition:border-color .2s;outline:none}
+.form-group input:focus{border-color:var(--accent)}
+.btn{width:100%;padding:.7rem;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-danger{background:var(--red);color:#fff;margin-top:.5rem}
+.msg{padding:.6rem .8rem;border-radius:8px;font-size:.82rem;margin-top:.75rem;display:none}
+.msg.success{background:rgba(16,185,129,.15);border:1px solid var(--green);color:var(--green)}
+.msg.error{background:rgba(239,68,68,.15);border:1px solid var(--red);color:var(--red)}
+/* PRODUCTS */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.section-header h2{font-size:1.1rem;font-weight:600}
+.search-bar{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.search-bar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;color:var(--text);font-size:.9rem;font-family:var(--font);outline:none}
+.search-bar input:focus{border-color:var(--accent)}
+.search-bar button{padding:.6rem 1.2rem;background:var(--accent);border:none;border-radius:8px;color:#fff;cursor:pointer;font-family:var(--font)}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .25s;cursor:pointer}
+.product-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 24px rgba(59,130,246,.15)}
+.product-img{width:100%;height:130px;object-fit:cover;background:linear-gradient(135deg,#1e2d45,#0f1929);display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.product-body{padding:.9rem}
+.product-name{font-size:.9rem;font-weight:600;margin-bottom:.3rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-price{font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:.6rem}
+.product-stock{font-size:.75rem;color:var(--muted)}
+.btn-cart{width:100%;padding:.5rem;background:rgba(59,130,246,.15);border:1px solid var(--accent);border-radius:7px;color:var(--accent);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.btn-cart:hover{background:var(--accent);color:#fff}
+/* ORDERS */
+.orders-list{margin-top:1rem}
+.order-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center}
+.order-status{padding:.25rem .65rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(59,130,246,.15);color:var(--accent)}
+/* SECURITY PANEL */
+.security-info{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:1.2rem;margin-top:1.5rem}
+.security-info h3{font-size:.9rem;font-weight:600;color:var(--green);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.security-item{display:flex;align-items:flex-start;gap:.5rem;font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
+.security-item::before{content:"🔒";flex-shrink:0}
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.2rem;font-size:.88rem;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;max-width:320px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+/* LOADING */
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:2rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none}
+/* TABS */
+.main-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.main-tab{padding:.5rem 1rem;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.85rem;cursor:pointer;transition:all .2s;font-family:var(--font)}
+.main-tab.active{background:var(--card);border-color:var(--accent);color:var(--text)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🔒 SecureShop</div>
+  <div class="nav-links">
+    <span id="authStatus">Giriş yapılmadı</span>
+    <a href="#" id="logoutBtn" class="hidden" onclick="logout()">Çıkış</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>AWS Güvenli<br><span>E-Ticaret Platformu</span></h1>
+  <p>OWASP Top 10 koruması, Defense in Depth mimarisi ve CIA Triad ilkeleriyle inşa edilmiş e-ticaret altyapısı.</p>
+  <div class="badges">
+    <span class="badge"><span class="dot"></span>SQL Injection Koruması</span>
+    <span class="badge"><span class="dot"></span>XSS Önleme</span>
+    <span class="badge"><span class="dot"></span>CSRF Token</span>
+    <span class="badge"><span class="dot"></span>Rate Limiting</span>
+    <span class="badge"><span class="dot"></span>bcrypt Hashing</span>
+    <span class="badge"><span class="dot"></span>AWS WAF</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid">
+
+    <!-- SOL: Auth Panel -->
+    <div>
+      <div class="panel" id="authPanel">
+        <h2>Hesap İşlemleri</h2>
+        <div class="tabs">
+          <button class="tab active" id="loginTab" onclick="switchTab('login')">Giriş Yap</button>
+          <button class="tab" id="registerTab" onclick="switchTab('register')">Kayıt Ol</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <div class="form-group">
+            <label>Kullanıcı Adı</label>
+            <input type="text" id="loginUsername" placeholder="kullaniciadi" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>Şifre</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <button class="btn btn-primary" onclick="login()">Giriş Yap</button>
+          <div class="msg" id="loginMsg"></div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+          <div class="form-group">
+            <label>Kullanıcı Adı</label>
+            <input type="text" id="regUsername" placeholder="kullaniciadi" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label>E-posta</label>
+            <input type="email" id="regEmail" placeholder="email@ornek.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label>Şifre <small style="color:var(--muted)">(min 8 karakter, büyük/küçük/rakam/özel)</small></label>
+            <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary" onclick="register()">Kayıt Ol</button>
+          <div class="msg" id="registerMsg"></div>
+        </div>
+      </div>
+
+      <!-- Logged In Panel -->
+      <div class="panel hidden" id="userPanel">
+        <h2>👤 <span id="welcomeUser"></span></h2>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Oturum aktif • Session güvenli</p>
+        <button class="btn btn-danger" onclick="logout()">Çıkış Yap</button>
+      </div>
+
+      <!-- Security Info -->
+      <div class="security-info">
+        <h3>🛡️ Aktif Güvenlik Kontrolleri</h3>
+        <div class="security-item">Parameterized Queries (SQL Injection koruması)</div>
+        <div class="security-item">bcrypt saltRounds=12 (Brute Force yavaşlatma)</div>
+        <div class="security-item">CSRF Token (State-changing istekler)</div>
+        <div class="security-item">Helmet.js (Security Headers: CSP, HSTS)</div>
+        <div class="security-item">Rate Limiting: 5 deneme/15dk (Login)</div>
+        <div class="security-item">httpOnly + SameSite=Strict (Cookie)</div>
+        <div class="security-item">Input Validation + HTML Escape (XSS)</div>
+        <div class="security-item">Private Subnet (RDS internete kapalı)</div>
+      </div>
+    </div>
+
+    <!-- SAĞ: Ürünler ve Siparişler -->
+    <div>
+      <div class="main-tabs">
+        <button class="main-tab active" onclick="showSection('products')">🛒 Ürünler</button>
+        <button class="main-tab" onclick="showSection('orders')">📦 Siparişlerim</button>
+      </div>
+
+      <!-- Products Section -->
+      <div id="productsSection">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Ürün ara..." onkeydown="if(event.key==='Enter')searchProducts()">
+          <button onclick="searchProducts()">Ara</button>
+        </div>
+        <div id="productsGrid" class="products-grid">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <div id="ordersSection" class="hidden">
+        <div class="section-header">
+          <h2>Siparişlerim</h2>
+          <button class="main-tab active" onclick="loadOrders()">Yenile</button>
+        </div>
+        <div id="ordersList">
+          <p style="color:var(--muted);font-size:.9rem">Siparişlerinizi görmek için giriş yapın.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let csrfToken = '';
+let currentUser = null;
+
+// ─── CSRF Token Al ─────────────────────────────────────
+async function getCsrfToken() {
+  try {
+    const r = await fetch('/api/csrf-token', { credentials: 'include' });
+    const d = await r.json();
+    csrfToken = d.csrfToken || '';
+  } catch(e) { console.warn('CSRF token alınamadı (dev mode)'); }
+}
+
+// ─── Toast ──────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ─── Tab Switch ─────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+  document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+}
+
+function showSection(section) {
+  document.getElementById('productsSection').classList.toggle('hidden', section !== 'products');
+  document.getElementById('ordersSection').classList.toggle('hidden', section !== 'orders');
+  document.querySelectorAll('.main-tab').forEach((t,i) => t.classList.toggle('active', (section==='products'&&i===0)||(section==='orders'&&i===1)));
+  if (section === 'orders') loadOrders();
+}
+
+// ─── Auth ────────────────────────────────────────────────
+async function login() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const msg = document.getElementById('loginMsg');
+  msg.style.display = 'none';
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      credentials: 'include',
+      body: JSON.stringify({ username, password })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      currentUser = d.user;
+      updateAuthUI(true);
+      showToast('Giriş başarılı! Hoş geldiniz, ' + d.user.username);
+      await getCsrfToken();
+    } else {
+      msg.className = 'msg error'; msg.style.display = 'block';
+      msg.textContent = d.error || 'Giriş başarısız.';
+    }
+  } catch(e) { showToast('Bağlantı hatası.', 'error'); }
+}
+
+async function register() {
+  const username = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const msg = document.getElementById('registerMsg');
+  msg.style.display = 'none';
+  try {
+    const r = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      credentials: 'include',
+      body: JSON.stringify({ username, email, password })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      msg.className = 'msg success'; msg.style.display = 'block';
+      msg.textContent = 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.';
+      switchTab('login');
+    } else {
+      msg.className = 'msg error'; msg.style.display = 'block';
+      msg.textContent = d.error || (d.details ? d.details.map(e=>e.message).join(', ') : 'Kayıt başarısız.');
+    }
+  } catch(e) { showToast('Bağlantı hatası.', 'error'); }
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', {
+    method: 'POST', credentials: 'include',
+    headers: { 'X-CSRF-Token': csrfToken }
+  });
+  currentUser = null;
+  updateAuthUI(false);
+  showToast('Çıkış yapıldı.');
+  await getCsrfToken();
+}
+
+function updateAuthUI(loggedIn) {
+  document.getElementById('authPanel').classList.toggle('hidden', loggedIn);
+  document.getElementById('userPanel').classList.toggle('hidden', !loggedIn);
+  document.getElementById('logoutBtn').classList.toggle('hidden', !loggedIn);
+  if (loggedIn && currentUser) {
+    document.getElementById('welcomeUser').textContent = currentUser.username;
+    document.getElementById('authStatus').textContent = '✅ ' + currentUser.username;
+  } else {
+    document.getElementById('authStatus').textContent = 'Giriş yapılmadı';
+  }
+}
+
+// ─── Products ────────────────────────────────────────────
+const DEMO_PRODUCTS = [
+  { id:1, name:'Laptop Pro 15', price:1299.99, stock:50, category:'Electronics', emoji:'💻' },
+  { id:2, name:'Wireless Headphones', price:199.99, stock:120, category:'Electronics', emoji:'🎧' },
+  { id:3, name:'Python Programming Book', price:39.99, stock:200, category:'Books', emoji:'📚' },
+  { id:4, name:'Secure Coding T-Shirt', price:24.99, stock:75, category:'Clothing', emoji:'👕' },
+  { id:5, name:'Mechanical Keyboard', price:149.99, stock:30, category:'Electronics', emoji:'⌨️' },
+  { id:6, name:'AWS Architecture Book', price:49.99, stock:88, category:'Books', emoji:'☁️' },
+];
+
+async function loadProducts(query='') {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = '<div class="spinner"></div>';
+  await new Promise(r => setTimeout(r, 400));
+  let products = DEMO_PRODUCTS;
+  if (query) products = products.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.category.toLowerCase().includes(query.toLowerCase()));
+  renderProducts(products);
+}
+
+function renderProducts(products) {
+  const grid = document.getElementById('productsGrid');
+  if (!products.length) { grid.innerHTML = '<p style="color:var(--muted)">Ürün bulunamadı.</p>'; return; }
+  grid.innerHTML = products.map(p => `
+    <div class="product-card">
+      <div class="product-img">${p.emoji || '📦'}</div>
+      <div class="product-body">
+        <div class="product-name" title="${p.name}">${p.name}</div>
+        <div class="product-price">$${p.price.toFixed(2)}</div>
+        <div class="product-stock">Stok: ${p.stock} adet</div>
+        <button class="btn-cart" style="margin-top:.6rem" onclick="addToCart(${p.id},'${p.name}')">Sepete Ekle</button>
+      </div>
+    </div>`).join('');
+}
+
+function searchProducts() {
+  const q = document.getElementById('searchInput').value.trim();
+  loadProducts(q);
+}
+
+function addToCart(id, name) {
+  if (!currentUser) { showToast('Sepete eklemek için giriş yapın.', 'error'); return; }
+  showToast(`"${name}" sepete eklendi!`);
+}
+
+// ─── Orders ──────────────────────────────────────────────
+async function loadOrders() {
+  const list = document.getElementById('ordersList');
+  if (!currentUser) { list.innerHTML = '<p style="color:var(--muted);font-size:.9rem">Siparişlerinizi görmek için giriş yapın.</p>'; return; }
+  list.innerHTML = '<div class="spinner"></div>';
+  try {
+    const r = await fetch('/api/checkout/orders', { credentials: 'include' });
+    if (!r.ok) throw new Error();
+    const orders = await r.json();
+    if (!orders.length) { list.innerHTML = '<p style="color:var(--muted)">Henüz siparişiniz yok.</p>'; return; }
+    list.innerHTML = orders.map(o => `
+      <div class="order-item">
+        <div>
+          <div style="font-size:.9rem;font-weight:600">Sipariş #${o.id}</div>
+          <div style="font-size:.78rem;color:var(--muted)">${new Date(o.created_at).toLocaleDateString('tr-TR')}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:var(--accent)">$${parseFloat(o.total_amount).toFixed(2)}</div>
+          <span class="order-status">${o.status}</span>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<p style="color:var(--muted)">Siparişler yüklenemedi (API bağlantısı yok — demo mod).</p>';
+  }
+}
+
+// ─── Check session ───────────────────────────────────────
+async function checkSession() {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (r.ok) { const d = await r.json(); currentUser = d; updateAuthUI(true); }
+  } catch(e) {}
+}
+
+// ─── Init ─────────────────────────────────────────────────
+(async () => {
+  await getCsrfToken();
+  await checkSession();
+  await loadProducts();
+})();
+</script>
+</body>
+</html>
