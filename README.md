@@ -95,17 +95,37 @@ mysql -u root -p < aws/schema.sql
 npm run dev
 ```
 
-### AWS Deployment
+### AWS Deployment (Ücretsiz veya Kurumsal Seçenek)
+
+Bu projede bütçe kısıtlarını gözetmek ve akademik demoları sıfır maliyetle yayına almak için iki farklı altyapı kodlama şablonu (IaC) bulunmaktadır:
+
+#### Seçenek A: %100 Ücretsiz Katman (Free-Tier Uyumlu - Demo İçin Tavsiye Edilen)
+Bu mimaride NAT Gateway, ALB, Multi-AZ RDS veya WAF gibi ücretli servisler **kullanılmaz**. İletişim OS düzeyinde `iptables` ile yönlendirilir ve Single-AZ ücretsiz RDS kullanılır. Aylık maliyeti **0$ (Sıfır Fatura)**'dır.
 
 ```bash
 # AWS CLI yapılandır
 aws configure
 
-# DB şifresini ortam değişkeni olarak ver
+# Güçlü bir veritabanı şifresi tanımla
 export DB_ROOT_PASSWORD="GuclüŞifre@123!"
 export AWS_REGION="us-east-1"
 
-# Altyapıyı kur (VPC, SG, RDS, ALB, ASG, CloudTrail)
+# Ücretsiz altyapıyı kur
+chmod +x aws/deploy-free-tier.sh
+./aws/deploy-free-tier.sh
+```
+
+#### Seçenek B: Kurumsal Ölçek (Production-Ready)
+Auto Scaling, Multi-AZ RDS, Application Load Balancer ve AWS WAF içeren tam güvenlikli üretim altyapısıdır (Saatlik ücret yansıtır).
+
+```bash
+# AWS CLI yapılandır
+aws configure
+
+export DB_ROOT_PASSWORD="GuclüŞifre@123!"
+export AWS_REGION="us-east-1"
+
+# Kurumsal altyapıyı kur
 chmod +x aws/setup-aws.sh
 ./aws/setup-aws.sh
 ```
