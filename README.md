@@ -1,7 +1,6 @@
 # 🔒 SecureShop — AWS Güvenli E-Ticaret Altyapısı
-
-> **Bulut Bilişim Dersi — Proje 4**  
-> Security-by-Design | DevSecOps | OWASP Top 10 | AWS Defense in Depth
+  
+Security-by-Design | DevSecOps | OWASP Top 10 | AWS Defense in Depth
 
 ---
 
@@ -213,4 +212,3 @@ curl -X POST http://localhost:3000/api/checkout \
 
 ---
 
-*Proje 4 | Bulut Bilişim Dersi | Security-by-Design*
