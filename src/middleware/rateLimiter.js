@@ -18,13 +18,9 @@ const onLimitReached = (req, res, options) => {
   });
 };
 
-/**
- * Login endpoint limiti: 5 başarısız deneme / 15 dakika
- * OWASP A07:2021 - Brute Force koruması
- */
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 dakika
-  max: 5,
+  windowMs: process.env.NODE_ENV === 'production' ? 15 * 60 * 1000 : 1000, // 15 dakika (prod) veya 1 saniye (dev)
+  max: process.env.NODE_ENV === 'production' ? 5 : 100,
   message: {
     error: 'Too many login attempts. Please try again in 15 minutes.',
     code: 'RATE_LIMIT_EXCEEDED',
@@ -42,8 +38,8 @@ const loginLimiter = rateLimit({
  * Register endpoint limiti: 3 hesap / saat
  */
 const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 saat
-  max: 3,
+  windowMs: process.env.NODE_ENV === 'production' ? 60 * 60 * 1000 : 1000, // 1 saat (prod) veya 1 saniye (dev)
+  max: process.env.NODE_ENV === 'production' ? 3 : 100,
   message: {
     error: 'Too many accounts created. Please try again in an hour.',
     code: 'RATE_LIMIT_EXCEEDED',
