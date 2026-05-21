@@ -1,18 +1,18 @@
 # 🔒 SecureShop — Bulut Tabanlı ve Güvenli E-Ticaret Platformu (DevSecOps)
 
-Bulut Bilişim ve Bilgi Güvenliği prensiplerine uygun, endüstri standardı bir **DevSecOps** projesidir. Proje; yüksek erişilebilirlik, otomatik ölçeklendirme ve derinlemesine bulut savunması (Defense in Depth) ile OWASP Top 10 uygulama güvenliği standartlarını tek bir çatı altında birleştirmektedir.
+Yüksek kullanılabilirlik, otomatik ölçeklendirme ve derinlemesine bulut savunması (Defense in Depth) ile OWASP Top 10 uygulama güvenliği standartlarını tek bir çatı altında birleştiren, endüstri standardı bir **DevSecOps** e-ticaret platformudur.
 
 ---
 
 ## 📋 Proje Özeti
 
-SecureShop, günümüzün modern bulut (Cloud-Native) mimarilerini ve siber güvenlik en iyi uygulamalarını (Best Practices) sergilemek amacıyla tasarlanmış ölçeklenebilir ve güvenli bir e-ticaret platformudur. Proje; hem **akıllı bulut altyapısı tasarımı** (Elasticity, Load Balancing, VPC Ağ Yönetimi) hem de **katı bilgi güvenliği standartları** (Girdi doğrulama, oturum yönetimi, veri şifreleme) temel alınarak inşa edilmiştir.
+SecureShop, modern bulut (Cloud-Native) mimarilerini ve siber güvenlik en iyi uygulamalarını (Best Practices) sergilemek amacıyla tasarlanmış ölçeklenebilir ve yüksek güvenlikli bir e-ticaret platformudur. Proje; hem **akıllı bulut altyapısı tasarımı** (Elasticity, Load Balancing, VPC Ağ Yönetimi) hem de **katı uygulama güvenliği standartları** (Girdi doğrulama, oturum yönetimi, veri şifreleme) temel alınarak kurumsal mimari standartlarında inşa edilmiştir.
 
 ---
 
 ## 🏗️ 1. Bulut Altyapısı ve Ölçeklenebilirlik (Cloud Infrastructure & Elasticity)
 
-Uygulamanın bulut mimarisi, yüksek erişilebilirlik (High Availability) ve otomatik ölçeklenebilirlik prensipleriyle tasarlanmıştır.
+Uygulamanın bulut mimarisi, kesintisiz hizmet (High Availability) ve dinamik ölçeklenebilirlik prensipleriyle tasarlanmıştır.
 
 ```
                   [ 🌐 Kullanıcı Trafiği ]
@@ -34,14 +34,14 @@ Auto Scaling Grubu                            Auto Scaling Grubu
 ```
 
 ### ⚙️ Bulut Mimarisi Özellikleri:
-* **Yüksek Erişilebilirlik (High Availability):** Sistem, Multi-AZ (Farklı kullanılabilirlik bölgeleri) yapısında çalışır. Herhangi bir veri merkezinde kesinti yaşandığında trafik diğer bölgeye otomatik yönlendirilir.
+* **Yüksek Kullanılabilirlik (High Availability):** Sistem, Multi-AZ (Farklı kullanılabilirlik bölgeleri) yapısında çalışır. Herhangi bir veri merkezinde kesinti yaşandığında trafik diğer bölgeye otomatik yönlendirilir.
 * **Otomatik Ölçeklendirme (Auto Scaling Group - ASG):** İşlemci (CPU) yükü %70 barajını aştığında, sistem otomatik olarak yeni EC2 sunucu örneklerini devreye alır. Trafik azaldığında maliyeti korumak için sunucuları otomatik kapatır.
 * **Yük Dengeleme (Application Load Balancer):** Gelen kullanıcı trafiğini arka plandaki sağlıklı sunuculara dengeli şekilde dağıtır ve sunucuların sağlık durumlarını (Health Checks) anlık izler.
 * **İzole Ağ Tasarımı (VPC & Subnets):** Uygulama sunucuları ve RDS veritabanı doğrudan internet erişimi olmayan **Private Subnet**'lerde (Özel Ağ) çalıştırılır. Dış dünya sunuculara doğrudan erişemez.
 
 ---
 
-## 🛡️ 2. Siber Güvenlik Mimarisi (Cybersecurity & OWASP Top 10)
+## 🛡️ 2. Uygulama Güvenliği Mimarisi (Application Security & OWASP Top 10)
 
 Uygulama, tasarım aşamasından itibaren güvenlik odaklı (Security-by-Design) olarak kodlanmış ve OWASP Top 10 standartlarına göre sertleştirilmiştir.
 
@@ -161,7 +161,7 @@ Uygulamanın siber güvenlik katmanlarını test etmek için aşağıdaki komutl
 
 ---
 
-## 📝 Akademik Referanslar ve Kaynakça
+## 📝 Referanslar ve Kaynakça
 
 * **OWASP Foundation:** [OWASP Top 10 Web Application Security Risks (2021)](https://owasp.org/Top10/)
 * **Amazon Web Services:** [AWS Well-Architected Framework - Security Pillar](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/)
