@@ -49,7 +49,6 @@ app.use(helmet({
       connectSrc: ["'self'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],              // Flash/plugin yasak
-      upgradeInsecureRequests: [],        // HTTP→HTTPS
     },
   },
   hsts: {

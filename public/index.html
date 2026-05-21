@@ -520,7 +520,8 @@ async function loadProducts(query='') {
     loadedProductsArray = d.products || [];
     renderProducts(loadedProductsArray);
   } catch(e) {
-    grid.innerHTML = '<p style="color:var(--red);font-size:.9rem">Ürünler sunucudan yüklenemedi (API hatası).</p>';
+    console.error(e);
+    grid.innerHTML = `<p style="color:var(--red);font-size:.9rem">Ürünler sunucudan yüklenemedi (API hatası): ${e.message || e}</p>`;
   }
 }
 
