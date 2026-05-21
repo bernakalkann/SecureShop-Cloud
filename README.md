@@ -1,214 +1,169 @@
-# 🔒 SecureShop — AWS Güvenli E-Ticaret Altyapısı
-  
-Security-by-Design | DevSecOps | OWASP Top 10 | AWS Defense in Depth
+# 🔒 SecureShop — Bulut Tabanlı ve Güvenli E-Ticaret Platformu (DevSecOps)
+
+Bulut Bilişim ve Bilgi Güvenliği prensiplerine uygun, endüstri standardı bir **DevSecOps** projesidir. Proje; yüksek erişilebilirlik, otomatik ölçeklendirme ve derinlemesine bulut savunması (Defense in Depth) ile OWASP Top 10 uygulama güvenliği standartlarını tek bir çatı altında birleştirmektedir.
 
 ---
 
 ## 📋 Proje Özeti
 
-Bu proje, AWS bulut platformu üzerinde **Derinlemesine Savunma (Defense in Depth)** ilkesiyle inşa edilmiş, ölçeklenebilir ve güvenli bir e-ticaret altyapısını kapsamaktadır. Yapay zeka bir **kopyala-yapıştır aracı** olarak değil, **Siber Güvenlik Denetçisi (Security Auditor)** rolünde kullanılmıştır.
+SecureShop, günümüzün modern bulut (Cloud-Native) mimarilerini ve siber güvenlik en iyi uygulamalarını (Best Practices) sergilemek amacıyla tasarlanmış ölçeklenebilir ve güvenli bir e-ticaret platformudur. Proje; hem **akıllı bulut altyapısı tasarımı** (Elasticity, Load Balancing, VPC Ağ Yönetimi) hem de **katı bilgi güvenliği standartları** (Girdi doğrulama, oturum yönetimi, veri şifreleme) temel alınarak inşa edilmiştir.
 
 ---
 
-## 🏗️ Mimari
+## 🏗️ 1. Bulut Altyapısı ve Ölçeklenebilirlik (Cloud Infrastructure & Elasticity)
+
+Uygulamanın bulut mimarisi, yüksek erişilebilirlik (High Availability) ve otomatik ölçeklenebilirlik prensipleriyle tasarlanmıştır.
 
 ```
-Internet
-    │
-[AWS WAF] ── Rate Limiting, SQLi/XSS imzaları
-    │
-[ALB] ── TLS 1.2+, HTTP→HTTPS 301 Redirect
-    │
-[EC2 Auto Scaling Group] ── Private Subnet
-│   Node.js + Helmet + CSRF + Rate Limiting
-    │
-[RDS MySQL] ── Private Subnet, Multi-AZ, KMS Encrypted
+                  [ 🌐 Kullanıcı Trafiği ]
+                            │
+              [ AWS WAF - Güvenlik Duvarı ]
+                            │
+      [ ALB - Application Load Balancer (Public Subnet) ]
+                            │
+     ┌──────────────────────┴──────────────────────┐
+     ▼                                             ▼
+[ EC2 Sunucu 1 (AZ1) ]                        [ EC2 Sunucu 2 (AZ2) ]
+Private Subnet                                Private Subnet
+Auto Scaling Grubu                            Auto Scaling Grubu
+     │                                             │
+     └──────────────────────┬──────────────────────┘
+                            ▼
+              [ RDS MySQL (Private Subnet) ]
+                     Multi-AZ Replikasyon
 ```
+
+### ⚙️ Bulut Mimarisi Özellikleri:
+* **Yüksek Erişilebilirlik (High Availability):** Sistem, Multi-AZ (Farklı kullanılabilirlik bölgeleri) yapısında çalışır. Herhangi bir veri merkezinde kesinti yaşandığında trafik diğer bölgeye otomatik yönlendirilir.
+* **Otomatik Ölçeklendirme (Auto Scaling Group - ASG):** İşlemci (CPU) yükü %70 barajını aştığında, sistem otomatik olarak yeni EC2 sunucu örneklerini devreye alır. Trafik azaldığında maliyeti korumak için sunucuları otomatik kapatır.
+* **Yük Dengeleme (Application Load Balancer):** Gelen kullanıcı trafiğini arka plandaki sağlıklı sunuculara dengeli şekilde dağıtır ve sunucuların sağlık durumlarını (Health Checks) anlık izler.
+* **İzole Ağ Tasarımı (VPC & Subnets):** Uygulama sunucuları ve RDS veritabanı doğrudan internet erişimi olmayan **Private Subnet**'lerde (Özel Ağ) çalıştırılır. Dış dünya sunuculara doğrudan erişemez.
 
 ---
 
-## 🛡️ Güvenlik Kontrolleri (OWASP Top 10)
+## 🛡️ 2. Siber Güvenlik Mimarisi (Cybersecurity & OWASP Top 10)
 
-| OWASP ID | Zafiyet | Uygulanan Önlem |
+Uygulama, tasarım aşamasından itibaren güvenlik odaklı (Security-by-Design) olarak kodlanmış ve OWASP Top 10 standartlarına göre sertleştirilmiştir.
+
+| OWASP ID | Güvenlik Zafiyeti | SecureShop Tarafından Uygulanan Önlem |
 |---|---|---|
-| A01:2021 | Broken Access Control | RBAC + IDOR koruması + session ownership |
-| A02:2021 | Cryptographic Failures | TLS 1.2+, bcrypt, KMS AES-256 |
-| A03:2021 | Injection (SQLi/XSS) | Parameterized queries + express-validator + helmet CSP |
-| A05:2021 | Security Misconfiguration | Helmet.js, verbose error gizleme |
-| A07:2021 | Auth Failures | bcrypt saltRounds=12, rate limiting, session fixation koruması |
-| A09:2021 | Logging & Monitoring | Winston logger, CloudTrail, security audit log |
+| **A01:2021** | Kırık Erişim Kontrolü (Broken Access Control) | Kullanıcı kimliği doğrulaması, IDOR (güvenli olmayan nesne referansı) koruması ve sipariş sahipliği kontrolleri. |
+| **A02:2021** | Kriptografik Hatalar (Cryptographic Failures) | Hassas verilerin aktarımı sırasında şifreleme ve şifrelerin **bcrypt (12 Salt Rounds)** algoritmalarıyla tek yönlü hashlenmesi. |
+| **A03:2021** | Enjeksiyon (SQLi / XSS) | Tamamen parametrik veritabanı sorguları (`db.execute`) ile SQLi engelleme ve `express-validator` filtrelemesi ile XSS koruması. |
+| **A05:2021** | Güvenlik Yapılandırma Hatası | `Helmet.js` ile gereksiz başlıkların gizlenmesi ve tarayıcıya katı güvenlik direktifleri (CSP/HSTS) gönderilmesi. |
+| **A07:2021** | Kimlik Doğrulama Hataları | Brute-force saldırılarına karşı IP bazlı **Rate Limiting** ve oturum çalınmasını engelleyen `Session ID` yenilemesi. |
+| **A09:2021** | Güvenlik Günlüğü (Logging) | `Winston` kütüphanesiyle IP adresi, istek metotları ve kullanıcı detaylarını içeren güvenlik denetim günlükleri (Audit Logs). |
 
 ---
 
-## 📁 Proje Yapısı
+## 📁 Proje Klasör Yapısı
 
 ```
 ecommerce-secure/
 ├── src/
-│   ├── app.js                 # Ana uygulama (7 güvenlik katmanı)
+│   ├── app.js                 # Ana Express uygulaması (Güvenlik katmanları)
 │   ├── routes/
-│   │   ├── auth.js            # Login/Register (bcrypt + rate limit)
-│   │   ├── products.js        # Ürünler (RBAC + parameterized)
-│   │   └── checkout.js        # Sipariş (transaction + IDOR koruması)
+│   │   ├── auth.js            # Kimlik doğrulama işlemleri (Kayıt/Giriş)
+│   │   ├── products.js        # Ürün yönetimi ve filtreleme
+│   │   └── checkout.js        # Güvenli sipariş ve ödeme işlemleri
 │   ├── middleware/
-│   │   ├── rateLimiter.js     # Brute force koruması
-│   │   ├── validation.js      # Input validation (SQLi/XSS)
-│   │   └── errorHandler.js    # Güvenli hata yönetimi
+│   │   ├── rateLimiter.js     # Brute force / DDoS koruma filtreleri
+│   │   ├── validation.js      # Girdi doğrulama ve XSS filtreleme
+│   │   └── errorHandler.js    # Sistem bilgilerini gizleyen güvenli hata yönetimi
 │   ├── models/
-│   │   └── db.js              # MySQL connection pool (SSL)
+│   │   └── db.js              # Veritabanı bağlantı havuzu yönetimi
 │   └── utils/
-│       └── logger.js          # Winston security logger
+│       └── logger.js          # Winston tabanlı güvenlik denetim günlüğü
 ├── public/
-│   └── index.html             # Frontend UI
+│   └── index.html             # Şık, modern ve güvenli ön yüz
 ├── aws/
-│   ├── setup-aws.sh           # Tam altyapı kurulum scripti
-│   ├── schema.sql             # Veritabanı şeması
-│   └── userdata.sh            # EC2 bootstrap (SSM secrets)
-├── .env.example               # Ortam değişkeni şablonu
-├── .gitignore                 # Secrets dışlama kuralları
-└── package.json
+│   ├── schema.sql             # Veritabanı şeması ve kısıtlar (constraints)
+│   └── setup-aws.sh           # AWS altyapı dağıtım scripti
+├── .env.example               # Örnek çevre değişkenleri
+├── README.md                  # Proje ana belgesi
+└── package.json               # Bağımlılık yönetimi
 ```
 
 ---
 
-## 🚀 Kurulum
+## 🚀 Kurulum ve Çalıştırma
 
-### Yerel Geliştirme
+### 💻 Yerel Geliştirme (Local Development)
 
-```bash
-# 1. Repoyu klonla
-git clone https://github.com/KULLANICI_ADIN/ecommerce-secure.git
-cd ecommerce-secure
+1. Projeyi bilgisayarınıza klonlayın veya indirin:
+   ```bash
+   git clone https://github.com/bernakalkann/ecommerce-secure.git
+   cd ecommerce-secure
+   ```
 
-# 2. Bağımlılıkları yükle
-npm install
+2. Gerekli kütüphaneleri yükleyin:
+   ```bash
+   npm install
+   ```
 
-# 3. Environment değişkenlerini ayarla
-cp .env.example .env
-# .env dosyasını düzenle (DB bilgileri)
+3. Çevre değişkenlerini ayarlayın:
+   * `.env.example` dosyasının adını `.env` olarak değiştirin ve veritabanı bağlantı bilgilerinizi girin.
 
-# 4. Veritabanını oluştur (MySQL kurulu olmalı)
-mysql -u root -p < aws/schema.sql
+4. Veritabanı şemasını yerel MySQL sunucunuzda çalıştırın:
+   ```bash
+   mysql -u root -p < aws/schema.sql
+   ```
 
-# 5. Uygulamayı başlat
-npm run dev
-```
-
-### AWS Deployment (Ücretsiz veya Kurumsal Seçenek)
-
-Bu projede bütçe kısıtlarını gözetmek ve akademik demoları sıfır maliyetle yayına almak için iki farklı altyapı kodlama şablonu (IaC) bulunmaktadır:
-
-#### Seçenek A: %100 Ücretsiz Katman (Free-Tier Uyumlu - Demo İçin Tavsiye Edilen)
-Bu mimaride NAT Gateway, ALB, Multi-AZ RDS veya WAF gibi ücretli servisler **kullanılmaz**. İletişim OS düzeyinde `iptables` ile yönlendirilir ve Single-AZ ücretsiz RDS kullanılır. Aylık maliyeti **0$ (Sıfır Fatura)**'dır.
-
-```bash
-# AWS CLI yapılandır
-aws configure
-
-# Güçlü bir veritabanı şifresi tanımla
-export DB_ROOT_PASSWORD="GuclüŞifre@123!"
-export AWS_REGION="us-east-1"
-
-# Ücretsiz altyapıyı kur
-chmod +x aws/deploy-free-tier.sh
-./aws/deploy-free-tier.sh
-```
-
-#### Seçenek B: Kurumsal Ölçek (Production-Ready)
-Auto Scaling, Multi-AZ RDS, Application Load Balancer ve AWS WAF içeren tam güvenlikli üretim altyapısıdır (Saatlik ücret yansıtır).
-
-```bash
-# AWS CLI yapılandır
-aws configure
-
-export DB_ROOT_PASSWORD="GuclüŞifre@123!"
-export AWS_REGION="us-east-1"
-
-# Kurumsal altyapıyı kur
-chmod +x aws/setup-aws.sh
-./aws/setup-aws.sh
-```
+5. Uygulamayı başlatın:
+   ```bash
+   npm start
+   ```
 
 ---
 
-## 🔐 CIA Triad Uygulaması
+## 🔍 Güvenlik Denetim ve Test Komutları
 
-### Gizlilik (Confidentiality)
-- RDS → Private Subnet (internete sıfır erişim)
-- TLS 1.2+ ile aktarım şifrelemesi
-- AWS KMS ile durağan şifreleme (AES-256)
-- Secrets → AWS SSM Parameter Store (hardcoded credential yok)
+Uygulamanın siber güvenlik katmanlarını test etmek için aşağıdaki komutları kullanabilirsiniz:
 
-### Bütünlük (Integrity)
-- Parameterized queries (SQL Injection koruması)
-- DB transaction (atomik sipariş işlemi)
-- CloudTrail (tüm API değişiklikleri kayıt altında)
-- Input validation (sunucu tarafında)
-
-### Erişilebilirlik (Availability)
-- RDS Multi-AZ (otomatik failover ~120s)
-- Auto Scaling (CPU %70 → scale-out)
-- AWS WAF Rate Limiting (2000 req/5dk/IP)
-- ALB Health Check (sağlıksız instance devre dışı)
-
----
-
-## 📦 Bağımlılıklar
-
-```bash
-npm install helmet express-validator csurf express-rate-limit \
-            bcryptjs dotenv winston express-session mysql2 cors
-```
-
----
-
-## 🔍 Güvenlik Test Komutları
-
-```bash
-# SQL Injection testi (WAF tarafından engellenmeli)
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin'\'' OR 1=1--","password":"test"}'
-# Beklenen: 400 Validation Error (string escaped)
-
-# Brute Force testi (Rate Limiting devreye girmeli)
-for i in {1..6}; do
+* **SQL Injection Testi (Engellenmelidir):**
+  ```bash
   curl -X POST http://localhost:3000/api/auth/login \
     -H "Content-Type: application/json" \
-    -d '{"username":"test","password":"wrong"}'
-done
-# 6. istekte beklenen: 429 Too Many Requests
+    -d '{"username":"admin'\'' OR 1=1--","password":"test"}'
+  # Sonuç: 400 Validation Error (Girdi filtrelenerek SQL enjeksiyonu önlenir).
+  ```
 
-# CSRF testi (token olmadan POST)
-curl -X POST http://localhost:3000/api/checkout \
-  -H "Content-Type: application/json" \
-  -d '{"items":[]}'
-# Beklenen: 403 CSRF_INVALID
-```
+* **Brute Force / DDoS Testi (Rate Limiter Devreye Girmelidir):**
+  ```bash
+  for i in {1..6}; do
+    curl -X POST http://localhost:3000/api/auth/login \
+      -H "Content-Type: application/json" \
+      -d '{"username":"test","password":"wrong"}'
+  done
+  # Sonuç: 6. denemeden sonra "429 Too Many Requests" engeli devreye girer.
+  ```
+
+* **CSRF Saldırı Testi (Token Olmadan POST İstekleri Engellenmelidir):**
+  ```bash
+  curl -X POST http://localhost:3000/api/checkout \
+    -H "Content-Type: application/json" \
+    -d '{"items":[]}'
+  # Sonuç: 403 CSRF_INVALID veya kimlik doğrulama hatası alınır.
+  ```
 
 ---
 
-## 📊 Tehdit Modeli
+## 📊 Güvenlik Tehdit Modeli ve Çözümler (Threat Modeling)
 
-| Saldırı | Vektör | Kontrol | Durum |
+| Tehdit | Saldırı Vektörü | Alınan Önlem / Kontrol | Sonuç |
 |---|---|---|---|
-| SQL Injection | Login, Arama | Parameterized Query | ✅ Engellendi |
-| XSS | Ürün arama, yorum | CSP + escape | ✅ Engellendi |
-| CSRF | Sipariş, ödeme | Synchronizer Token | ✅ Engellendi |
-| Brute Force | Login | Rate Limit 5/15dk | ✅ Engellendi |
-| Session Hijacking | Cookie | httpOnly + Secure | ✅ Engellendi |
-| IDOR | Sipariş detayı | user_id ownership check | ✅ Engellendi |
-| DDoS | ALB | WAF + Auto Scaling | ✅ Azaltıldı |
+| **SQL Injection** | Girdi Alanları | Parameterized Queries (Parametrik Sorgu) | ✅ Engellendi |
+| **Cross-Site Scripting (XSS)** | Ürün arama / Yorumlar | CSP Başlığı + HTML Entity Escaping | ✅ Engellendi |
+| **CSRF (İstek Sahteciliği)** | Sipariş / checkout | Synchronizer Token Pattern | ✅ Engellendi |
+| **Brute Force (Kaba Kuvvet)** | Giriş Paneli | Rate Limiter (Zaman & İstek Sınırı) | ✅ Engellendi |
+| **Session Hijacking** | Çerez Çalma | HttpOnly + Secure + SameSite Çerezleri | ✅ Engellendi |
+| **DDoS (Hizmet Engelleme)** | Genel Trafik | AWS WAF + Auto Scaling + Rate Limiter | ✅ Risk En Aza İndirildi |
 
 ---
 
-## 📝 Referanslar
+## 📝 Akademik Referanslar ve Kaynakça
 
-- [OWASP Top 10 (2021)](https://owasp.org/Top10/)
-- [AWS Well-Architected Framework — Security Pillar](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/)
-- [CIS AWS Foundations Benchmark v1.5](https://www.cisecurity.org/benchmark/amazon_web_services)
-- [NIST SP 800-30 Risk Assessment Guide](https://csrc.nist.gov/publications/detail/sp/800-30/rev-1/final)
-- [Node.js Security Best Practices](https://nodejs.org/en/docs/guides/security/)
-
----
-
+* **OWASP Foundation:** [OWASP Top 10 Web Application Security Risks (2021)](https://owasp.org/Top10/)
+* **Amazon Web Services:** [AWS Well-Architected Framework - Security Pillar](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/)
+* **NIST (National Institute of Standards and Technology):** [SP 800-30 Guide for Conducting Risk Assessments](https://csrc.nist.gov/publications/detail/sp/800-30/rev-1/final)
+* **CIS (Center for Internet Security):** [CIS AWS Foundations Benchmark](https://www.cisecurity.org/benchmark/amazon_web_services)
