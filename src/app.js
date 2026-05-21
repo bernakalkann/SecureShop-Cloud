@@ -42,7 +42,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],               // Inline script yasak
+      scriptSrc: ["'self'", "'unsafe-inline'"],               // Inline script izin verildi (dev/demo kolaylığı için)
+      scriptSrcAttr: ["'unsafe-inline'"],                     // Inline onclick eventleri için izin verildi
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'"],

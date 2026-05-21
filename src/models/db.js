@@ -74,12 +74,44 @@ class MockConnection {
 
     // 4. Products list
     if (q.includes('SELECT p.id, p.name, p.description, p.price, p.stock, p.image_url')) {
-      return [mockDb.products.filter(p => p.is_active === 1)];
+      let filtered = mockDb.products.filter(p => p.is_active === 1);
+      let paramIdx = 0;
+      if (q.includes('AND (p.name LIKE ? OR p.description LIKE ?)')) {
+        const searchVal = params[paramIdx] ? params[paramIdx].replace(/%/g, '').toLowerCase() : '';
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal) || p.description.toLowerCase().includes(searchVal));
+        paramIdx += 2;
+      }
+      if (q.includes('AND c.slug = ?')) {
+        const catSlug = params[paramIdx];
+        const catMap = { 'electronics': 1, 'clothing': 2, 'books': 3 };
+        const catId = catMap[catSlug];
+        if (catId) {
+          filtered = filtered.filter(p => p.category_id === catId);
+        }
+        paramIdx += 1;
+      }
+      return [filtered];
     }
 
     // 5. Products count
     if (q.includes('SELECT COUNT(*) AS total FROM products')) {
-      return [[{ total: mockDb.products.length }]];
+      let filtered = mockDb.products.filter(p => p.is_active === 1);
+      let paramIdx = 0;
+      if (q.includes('AND (p.name LIKE ? OR p.description LIKE ?)')) {
+        const searchVal = params[paramIdx] ? params[paramIdx].replace(/%/g, '').toLowerCase() : '';
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal) || p.description.toLowerCase().includes(searchVal));
+        paramIdx += 2;
+      }
+      if (q.includes('AND c.slug = ?')) {
+        const catSlug = params[paramIdx];
+        const catMap = { 'electronics': 1, 'clothing': 2, 'books': 3 };
+        const catId = catMap[catSlug];
+        if (catId) {
+          filtered = filtered.filter(p => p.category_id === catId);
+        }
+        paramIdx += 1;
+      }
+      return [[{ total: filtered.length }]];
     }
 
     // 6. Single product check

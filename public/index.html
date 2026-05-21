@@ -88,6 +88,146 @@ nav{background:rgba(17,24,39,.95);backdrop-filter:blur(12px);border-bottom:1px s
 .main-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
 .main-tab{padding:.5rem 1rem;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.85rem;cursor:pointer;transition:all .2s;font-family:var(--font)}
 .main-tab.active{background:var(--card);border-color:var(--accent);color:var(--text)}
+
+/* CART SLIDE PANEL */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -450px;
+  width: 420px;
+  max-width: 100%;
+  height: 100vh;
+  background: rgba(17, 24, 39, 0.95);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+.cart-panel.open {
+  right: 0;
+}
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+.cart-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.close-cart {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-cart:hover {
+  color: var(--text);
+}
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  padding-right: .5rem;
+}
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .75rem;
+  margin-bottom: .75rem;
+}
+.cart-item-info {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.cart-item-img {
+  font-size: 1.5rem;
+}
+.cart-item-details {
+  display: flex;
+  flex-direction: column;
+}
+.cart-item-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.cart-item-price {
+  font-size: .8rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.cart-item-qty {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+.qty-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: .75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qty-btn:hover {
+  border-color: var(--accent);
+}
+.qty-val {
+  font-size: .8rem;
+  font-weight: 600;
+}
+.cart-item-remove {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .9rem;
+  transition: color 0.2s;
+}
+.cart-item-remove:hover {
+  color: var(--red);
+}
+.cart-checkout-form {
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+  margin-bottom: 1rem;
+}
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.cart-summary span:last-child {
+  color: var(--accent);
+}
 </style>
 </head>
 <body>
@@ -95,6 +235,7 @@ nav{background:rgba(17,24,39,.95);backdrop-filter:blur(12px);border-bottom:1px s
 <nav>
   <div class="logo">🔒 SecureShop</div>
   <div class="nav-links">
+    <a href="#" onclick="toggleCart(event)" id="cartToggleBtn" style="margin-right: .75rem;">🛒 Sepetim (<span id="cartCount">0</span>)</a>
     <span id="authStatus">Giriş yapılmadı</span>
     <a href="#" id="logoutBtn" class="hidden" onclick="logout()">Çıkış</a>
   </div>
@@ -324,23 +465,61 @@ function updateAuthUI(loggedIn) {
   }
 }
 
-// ─── Products ────────────────────────────────────────────
-const DEMO_PRODUCTS = [
-  { id:1, name:'Laptop Pro 15', price:1299.99, stock:50, category:'Electronics', emoji:'💻' },
-  { id:2, name:'Wireless Headphones', price:199.99, stock:120, category:'Electronics', emoji:'🎧' },
-  { id:3, name:'Python Programming Book', price:39.99, stock:200, category:'Books', emoji:'📚' },
-  { id:4, name:'Secure Coding T-Shirt', price:24.99, stock:75, category:'Clothing', emoji:'👕' },
-  { id:5, name:'Mechanical Keyboard', price:149.99, stock:30, category:'Electronics', emoji:'⌨️' },
-  { id:6, name:'AWS Architecture Book', price:49.99, stock:88, category:'Books', emoji:'☁️' },
-];
+<!-- SAĞDAN AÇILAN SEPET PANELİ -->
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h2>🛒 Alışveriş Sepetim</h2>
+    <button class="close-cart" onclick="closeCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <!-- Sepet elemanları JavaScript ile buraya doldurulacak -->
+  </div>
+  
+  <div class="cart-checkout-form">
+    <h3 style="font-size:.9rem;font-weight:600;margin-bottom:.75rem;color:var(--text)">Teslimat Adresi</h3>
+    <div class="form-group" style="margin-bottom:.6rem">
+      <label style="font-size:.75rem">Sokak / Cadde / Daire</label>
+      <input type="text" id="shippingStreet" placeholder="Örnek: Güvenlik Cad. No: 12/4">
+    </div>
+    <div class="form-group" style="margin-bottom:1rem">
+      <label style="font-size:.75rem">Şehir</label>
+      <input type="text" id="shippingCity" placeholder="Örnek: Ankara">
+    </div>
+    <div class="msg" id="checkoutMsg" style="margin-bottom:1rem"></div>
+  </div>
 
+  <div class="cart-summary">
+    <span>Toplam Tutar:</span>
+    <span id="cartTotal">$0.00</span>
+  </div>
+  
+  <div style="display:flex;gap:.5rem">
+    <button class="btn btn-danger" style="flex:1" onclick="clearCart()">Temizle</button>
+    <button class="btn btn-primary" style="flex:2" id="checkoutBtn" onclick="checkout()">Siparişi Tamamla</button>
+  </div>
+</div>
+
+<script>
+let loadedProductsArray = [];
+let cart = [];
+
+// ─── Products ────────────────────────────────────────────
 async function loadProducts(query='') {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '<div class="spinner"></div>';
-  await new Promise(r => setTimeout(r, 400));
-  let products = DEMO_PRODUCTS;
-  if (query) products = products.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.category.toLowerCase().includes(query.toLowerCase()));
-  renderProducts(products);
+  try {
+    let url = '/api/products';
+    if (query) {
+      url += '?q=' + encodeURIComponent(query);
+    }
+    const r = await fetch(url, { credentials: 'include' });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    loadedProductsArray = d.products || [];
+    renderProducts(loadedProductsArray);
+  } catch(e) {
+    grid.innerHTML = '<p style="color:var(--red);font-size:.9rem">Ürünler sunucudan yüklenemedi (API hatası).</p>';
+  }
 }
 
 function renderProducts(products) {
@@ -348,12 +527,12 @@ function renderProducts(products) {
   if (!products.length) { grid.innerHTML = '<p style="color:var(--muted)">Ürün bulunamadı.</p>'; return; }
   grid.innerHTML = products.map(p => `
     <div class="product-card">
-      <div class="product-img">${p.emoji || '📦'}</div>
+      <div class="product-img">${p.image_url || '📦'}</div>
       <div class="product-body">
         <div class="product-name" title="${p.name}">${p.name}</div>
-        <div class="product-price">$${p.price.toFixed(2)}</div>
-        <div class="product-stock">Stok: ${p.stock} adet</div>
-        <button class="btn-cart" style="margin-top:.6rem" onclick="addToCart(${p.id},'${p.name}')">Sepete Ekle</button>
+        <div class="product-price">$${parseFloat(p.price).toFixed(2)}</div>
+        <div class="product-stock">${p.stock > 0 ? `Stok: ${p.stock} adet` : '<span style="color:var(--red)">Stokta Yok</span>'}</div>
+        <button class="btn-cart" style="margin-top:.6rem" onclick="addToCart(${p.id},'${p.name}')" ${p.stock > 0 ? '' : 'disabled'}>Sepete Ekle</button>
       </div>
     </div>`).join('');
 }
@@ -363,9 +542,190 @@ function searchProducts() {
   loadProducts(q);
 }
 
+// ─── Cart Logic ──────────────────────────────────────────
+function toggleCart(e) {
+  if (e) e.preventDefault();
+  document.getElementById('cartPanel').classList.toggle('open');
+}
+
+function closeCart() {
+  document.getElementById('cartPanel').classList.remove('open');
+}
+
+function updateCartUI() {
+  const cartList = document.getElementById('cartItems');
+  const countSpan = document.getElementById('cartCount');
+  const totalSpan = document.getElementById('cartTotal');
+  
+  if (cart.length === 0) {
+    cartList.innerHTML = '<p style="color:var(--muted);text-align:center;margin-top:2rem;font-size:.9rem">Sepetiniz boş.</p>';
+    countSpan.textContent = '0';
+    totalSpan.textContent = '$0.00';
+    return;
+  }
+  
+  let totalCount = 0;
+  let totalPrice = 0;
+  
+  cartList.innerHTML = cart.map(item => {
+    totalCount += item.quantity;
+    totalPrice += item.price * item.quantity;
+    return `
+      <div class="cart-item">
+        <div class="cart-item-info">
+          <div class="cart-item-img">${item.image_url || '📦'}</div>
+          <div class="cart-item-details">
+            <div class="cart-item-name" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
+            <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+            <div class="cart-item-qty">
+              <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+              <span class="qty-val">${item.quantity}</span>
+              <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${item.id})">🗑️</button>
+      </div>`;
+  }).join('');
+  
+  countSpan.textContent = totalCount;
+  totalSpan.textContent = '$' + totalPrice.toFixed(2);
+}
+
 function addToCart(id, name) {
-  if (!currentUser) { showToast('Sepete eklemek için giriş yapın.', 'error'); return; }
+  if (!currentUser) {
+    showToast('Sepete eklemek için giriş yapın.', 'error');
+    return;
+  }
+  
+  const product = loadedProductsArray.find(p => p.id === id);
+  if (!product) return;
+  
+  const existing = cart.find(item => item.id === id);
+  if (existing) {
+    if (existing.quantity >= product.stock) {
+      showToast('Daha fazla stok bulunmamaktadır!', 'error');
+      return;
+    }
+    existing.quantity += 1;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: parseFloat(product.price),
+      image_url: product.image_url,
+      quantity: 1
+    });
+  }
+  
+  updateCartUI();
   showToast(`"${name}" sepete eklendi!`);
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  
+  const product = loadedProductsArray.find(p => p.id === id);
+  const maxStock = product ? product.stock : 99;
+  
+  item.quantity += delta;
+  if (item.quantity <= 0) {
+    removeFromCart(id);
+  } else if (item.quantity > maxStock) {
+    item.quantity = maxStock;
+    showToast('Maksimum stok sınırına ulaşıldı.', 'error');
+  } else {
+    updateCartUI();
+  }
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  updateCartUI();
+}
+
+function clearCart() {
+  cart = [];
+  updateCartUI();
+}
+
+async function checkout() {
+  if (!currentUser) {
+    showToast('Ödeme yapmak için giriş yapın.', 'error');
+    return;
+  }
+  if (cart.length === 0) {
+    showToast('Sepetiniz boş.', 'error');
+    return;
+  }
+  
+  const street = document.getElementById('shippingStreet').value.trim();
+  const city = document.getElementById('shippingCity').value.trim();
+  const msg = document.getElementById('checkoutMsg');
+  const btn = document.getElementById('checkoutBtn');
+  
+  msg.style.display = 'none';
+  
+  // Validation
+  if (street.length < 5) {
+    msg.className = 'msg error';
+    msg.style.display = 'block';
+    msg.textContent = 'Adres en az 5 karakter olmalıdır.';
+    return;
+  }
+  if (city.length < 2) {
+    msg.className = 'msg error';
+    msg.style.display = 'block';
+    msg.textContent = 'Şehir en az 2 karakter olmalıdır.';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'İşleniyor...';
+  
+  const checkoutData = {
+    items: cart.map(item => ({
+      productId: item.id,
+      quantity: item.quantity
+    })),
+    shippingAddress: {
+      street: street,
+      city: city
+    }
+  };
+  
+  try {
+    const r = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      credentials: 'include',
+      body: JSON.stringify(checkoutData)
+    });
+    const d = await r.json();
+    
+    if (r.ok) {
+      showToast('Sipariş başarıyla oluşturuldu ve stoklar düşüldü!');
+      clearCart();
+      document.getElementById('shippingStreet').value = '';
+      document.getElementById('shippingCity').value = '';
+      closeCart();
+      await loadProducts();
+      await loadOrders();
+    } else {
+      msg.className = 'msg error';
+      msg.style.display = 'block';
+      msg.textContent = d.error || 'Sipariş oluşturulamadı.';
+    }
+  } catch(e) {
+    showToast('Bağlantı hatası.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Siparişi Tamamla';
+  }
 }
 
 // ─── Orders ──────────────────────────────────────────────
@@ -390,7 +750,7 @@ async function loadOrders() {
         </div>
       </div>`).join('');
   } catch(e) {
-    list.innerHTML = '<p style="color:var(--muted)">Siparişler yüklenemedi (API bağlantısı yok — demo mod).</p>';
+    list.innerHTML = '<p style="color:var(--muted)">Siparişler yüklenemedi.</p>';
   }
 }
 
