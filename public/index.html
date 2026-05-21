@@ -437,7 +437,7 @@ async function register() {
       switchTab('login');
     } else {
       msg.className = 'msg error'; msg.style.display = 'block';
-      msg.textContent = d.error || (d.details ? d.details.map(e=>e.message).join(', ') : 'Kayıt başarısız.');
+      msg.textContent = d.details ? d.details.map(e => e.message).join(', ') : (d.error || 'Kayıt başarısız.');
     }
   } catch(e) { showToast('Bağlantı hatası.', 'error'); }
 }
