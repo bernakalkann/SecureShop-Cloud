@@ -51,10 +51,13 @@ app.use(helmet({
       objectSrc: ["'none'"],              // Flash/plugin yasak
     },
   },
-  hsts: {
-    maxAge: 31536000,                     // 1 yıl HTTPS zorunlu
+  hsts: process.env.NODE_ENV === 'production' ? {
+    maxAge: 31536000,                     // 1 yıl HTTPS zorunlu (prod)
     includeSubDomains: true,
     preload: true,
+  } : {
+    maxAge: 0,                            // Geliştirme/yerel ortamda HTTPS zorlamasını sıfırla
+    includeSubDomains: true,
   },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
