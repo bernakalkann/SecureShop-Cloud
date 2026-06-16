@@ -1,6 +1,7 @@
 # 🔒 SecureShop — Bulut Tabanlı ve Güvenli E-Ticaret Platformu (DevSecOps)
 
-Yüksek kullanılabilirlik, otomatik ölçeklendirme ve derinlemesine bulut savunması (Defense in Depth) ile OWASP Top 10 uygulama güvenliği standartlarını tek bir çatı altında birleştiren, endüstri standardı bir **DevSecOps** e-ticaret platformudur.
+> **🔗 Canlı Uygulama Adresi:** http://54.221.73.19  
+> *(AWS EC2 üzerinde çalışmaktadır ve canlı AWS RDS MySQL veritabanına bağlıdır)*
 
 ---
 
@@ -92,7 +93,7 @@ ecommerce-secure/
 
 1. Projeyi bilgisayarınıza klonlayın veya indirin:
    ```bash
-   git clone https://github.com/bernakalkann/ecommerce-secure.git
+   git clone https://github.com/bernakalkann/SecureShop-Cloud.git
    cd ecommerce-secure
    ```
 
