@@ -49,6 +49,7 @@ app.use(helmet({
       connectSrc: ["'self'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],              // Flash/plugin yasak
+      upgradeInsecureRequests: null,      // HTTP üzerinden çalışabilmek için HTTPS zorlamasını kapat
     },
   },
   hsts: process.env.NODE_ENV === 'production' ? {
@@ -68,14 +69,7 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173'];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      logger.security('CORS_BLOCKED', { origin });
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true,                           // Gelen tüm istek kökenlerine (IP veya localhost) izin ver (Credentials desteği ile)
   credentials: true,                      // Cookie'lere izin ver
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
@@ -94,7 +88,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,                       // JavaScript'ten erişim engeli (XSS koruması)
-    secure: process.env.NODE_ENV === 'production', // HTTPS zorunlu (production)
+    secure: false,                        // HTTP üzerinden çalıştığı için cookie secure flag kapatıldı
     sameSite: 'strict',                   // CSRF koruması (ek katman)
     maxAge: 60 * 60 * 1000,              // 1 saat session süresi
   },
@@ -105,7 +99,7 @@ app.use(session({
 const csrfProtection = csrf({
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,                        // HTTP üzerinden çalıştığı için CSRF cookie secure kapatıldı
     sameSite: 'strict',
   },
 });
