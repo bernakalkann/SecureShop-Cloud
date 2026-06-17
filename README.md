@@ -103,17 +103,27 @@ ecommerce-secure/
    ```
 
 3. Çevre değişkenlerini ayarlayın:
-   * `.env.example` dosyasının adını `.env` olarak değiştirin ve veritabanı bağlantı bilgilerinizi girin.
+   * `.env.example` dosyasının adını `.env` olarak değiştirin. Varsayılan yerel port `3001` olarak ayarlanmıştır.
 
-4. Veritabanı şemasını yerel MySQL sunucunuzda çalıştırın:
-   ```bash
-   mysql -u root -p < aws/schema.sql
-   ```
+4. Veritabanı kurulumu (İsteğe Bağlı):
+   * Yerel MySQL sunucunuzda çalıştırmak isterseniz şemayı yükleyin:
+     ```bash
+     mysql -u root -p < aws/schema.sql
+     ```
+   * **Not:** Eğer yerel veritabanı kurulmazsa veya bağlantı başarısız olursa, uygulama otomatik olarak **Simüle Edilmiş Bellek-İçi Veritabanı Modu (Mock Mode)**'na geçecektir. Bu mod, sunumlar ve yerel demolar için sıfır yapılandırmayla tam işlevsellik sunar.
 
 5. Uygulamayı başlatın:
    ```bash
    npm start
    ```
+   Uygulama **`http://localhost:3001`** adresinde çalışacaktır.
+
+### 🧪 Otomatik Güvenlik ve Entegrasyon Testleri (Jest & Supertest)
+
+Uygulamanın güvenlik altyapısını ve OWASP Top 10 önlemlerini (Helmet headers, input validation/XSS escaping, rate limiting, CSRF tokens, RBAC yetki kontrolleri ve IDOR engellemeleri) test etmek için hazırlanan test paketini çalıştırabilirsiniz:
+```bash
+npm run test
+```
 
 ---
 
