@@ -1,7 +1,7 @@
 # 🔒 SecureShop — Bulut Tabanlı ve Güvenli E-Ticaret Platformu (DevSecOps)
 
-> **🔗 Canlı Uygulama Adresi:** http://54.221.73.19  
-> *(AWS EC2 üzerinde çalışmaktadır ve canlı AWS RDS MySQL veritabanına bağlıdır)*
+> **🔗 Canlı Uygulama Adresi:** http://<AWS-ALB-DNS-ADRESINIZ>  
+> *(AWS altyapı kurulumu tamamlandıktan sonra oluşturulan Application Load Balancer DNS adresi ile güncellenecektir)*
 
 ---
 
