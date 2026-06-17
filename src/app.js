@@ -140,15 +140,17 @@ app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
 // ─── Server Başlat ────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`, {
-    environment: process.env.NODE_ENV,
-    port: PORT,
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`, {
+      environment: process.env.NODE_ENV,
+      port: PORT,
+    });
+    console.log(`\n🔒 Secure E-Commerce Server`);
+    console.log(`   URL: http://localhost:${PORT}`);
+    console.log(`   ENV: ${process.env.NODE_ENV || 'development'}\n`);
   });
-  console.log(`\n🔒 Secure E-Commerce Server`);
-  console.log(`   URL: http://localhost:${PORT}`);
-  console.log(`   ENV: ${process.env.NODE_ENV || 'development'}\n`);
-});
+}
 
 // Beklenmedik hataları yakala (process çökmesini önle)
 process.on('uncaughtException', (err) => {

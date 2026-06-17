@@ -4,10 +4,10 @@ const mysql = require('mysql2/promise');
 
 // AWS RDS Bilgileri
 const dbConfig = {
-  host: 'secureshop-db.c69ogseskkfq.us-east-1.rds.amazonaws.com',
-  user: 'admin',
-  password: '27Antep27',
-  port: 3306
+  host: process.env.DB_HOST || 'secureshop-db.c69ogseskkfq.us-east-1.rds.amazonaws.com',
+  user: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASSWORD || '27Antep27',
+  port: parseInt(process.env.DB_PORT, 10) || 3306
 };
 
 async function initializeDatabase() {

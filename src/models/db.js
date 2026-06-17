@@ -160,6 +160,31 @@ class MockConnection {
       return [userOrders];
     }
 
+    // 10b. Get order details (IDOR protection check)
+    if (q.includes('FROM orders o JOIN order_items oi ON o.id = oi.order_id')) {
+      const orderId = params[0];
+      const userId = params[1];
+      const order = mockDb.orders.find(o => o.id === orderId && o.user_id === userId);
+      if (!order) return [[]];
+      
+      const items = mockDb.orderItems.filter(oi => oi.order_id === orderId);
+      const rows = items.map(item => {
+        const product = mockDb.products.find(p => p.id === item.product_id);
+        return {
+          id: order.id,
+          total_amount: order.total_amount,
+          status: order.status,
+          shipping_address: order.shipping_address,
+          created_at: order.created_at,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          product_name: product ? product.name : 'Unknown Product'
+        };
+      });
+      return [rows];
+    }
+
     // Default Fallback
     return [[]];
   }
